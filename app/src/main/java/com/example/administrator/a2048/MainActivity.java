@@ -1,6 +1,9 @@
 package com.example.administrator.a2048;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
@@ -17,7 +20,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int df = 0;
+    boolean flag = false;
+    private int df = 0;
     List<Integer> list =  new ArrayList<Integer>();
     int[] number = {2,4};
     private static int x;
@@ -47,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tv_df;
     private TextView tv_info;
+    private SQLiteDatabase db;
+    private int fs;
+    //刷新实时得分
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -56,13 +63,19 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MySqlite ms = new MySqlite(this,"2048.db",null,1);
+        db = ms.getWritableDatabase();
+
         tv_df = (TextView) findViewById(R.id.tv_df);
         tv_info = (TextView) findViewById(R.id.tv_info);
+
         fk[0][0] = (Fangkuai) findViewById(R.id.fk_11);
         fk[0][1] = (Fangkuai) findViewById(R.id.fk_12);
         fk[0][2] = (Fangkuai) findViewById(R.id.fk_13);
@@ -80,12 +93,22 @@ public class MainActivity extends AppCompatActivity {
         fk[3][2] = (Fangkuai) findViewById(R.id.fk_43);
         fk[3][3] = (Fangkuai) findViewById(R.id.fk_44);
 
+        //从数据库中查找到最高分，并将最高分显示到界面上
+        TextView tv_gf = (TextView) findViewById(R.id.tv_gf);
+        Cursor cursor = db.query("fenshu",null,null,null,null,null,null,null);
+        while (cursor.moveToNext()){
+            fs = cursor.getInt(cursor.getColumnIndex("fs"));
+            tv_gf.setText(fs +"");
+        }
+
+        //初始化设置两个元素在界面中
         for (int i=0;i<2;i++) {
             int fkx = (int) ((Math.random()) * 4);
             int fky = (int) ((Math.random()) * 4);
             fk[fkx][fky].setNum(number[(int) (Math.random()*2)]);
         }
 
+        //设置手指在屏幕内滑动的逻辑
         ll = (LinearLayout) findViewById(R.id.ll);
         ll.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -118,13 +141,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    //滑动逻辑判断，第一个for循环将空白的格子用所在列（或所在行）的有数值的填充
+    // 第二个for循环，将所在列（或所在行）相等的数值相加，并将最上（最下，最左，最右）的元素设置为相加数值，另一元素设置为0
+    //第三个for循环将空白的格子用所在列（或所在行）的有数值的填充
+    //第四个for循环，搜索边界为0的元素，并添加到数组中。
+    //最后的if判断，将从数组中随机得到的数值添加到随机的元素中
     public void up(){
-        isfull();
-//        for (int j=0;j<4;j++){
-//            if (fk[0][j].getNum()>0){
-//                return;
-//            }
-//        }
         for (int i = 0;i<4;i++){
             for (int j = 0; j< 4 ;j++){
                 if (fk[i][j].getNum()==0) {
@@ -172,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        isfull();
         for (int j = 0; j< 4 ;j++){
             if (fk[3][j].getNum()==0){
                 list.add(j);
@@ -184,14 +207,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void down(){
-//
-//        for (int j=0;j<4;j++){
-//            if (fk[3][j].getNum()>0){
-//                return;
-//            }
-//        }
-
-        isfull();
         for (int i = 3;i>= 0;i--){
             for (int j = 3; j >= 0 ;j--) {
                 if (fk[i][j].getNum()==0){
@@ -238,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        isfull();
         for (int j = 0; j< 4 ;j++){
             if (fk[0][j].getNum()==0){
                 list.add(j);
@@ -250,12 +266,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void left(){
-//        for (int i=0;i<4;i++){
-//            if (fk[i][0].getNum()>0){
-//                return;
-//            }
-//        }
-        isfull();
         for (int j=0;j<4;j++) {
             for (int i = 0; i < 4; i++) {
                 if (fk[i][j].getNum()==0){
@@ -293,7 +303,6 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < 4; i++) {
                 if (fk[i][j].getNum()==0){
                     for (int k = j+1;k<4;k++){
-//                        if (j<3){
                             if (fk[i][k].getNum()>0){
                                 fk[i][j].setNum(fk[i][k].getNum());
                                 fk[i][k].setNum(0);
@@ -304,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        isfull();
         for (int i = 0; i< 4 ;i++){
             if (fk[i][3].getNum()==0){
                 list.add(i);
@@ -316,17 +326,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void right(){
-//        for (int i=0;i<4;i++){
-//            if (fk[3][i].getNum()>0){
-//                return;
-//            }
-//        }
-        isfull();
         for (int j = 3;j>=0;j--){
             for (int i= 3;i>=0;i--){
                 if (fk[i][j].getNum()==0){
                     for (int k = j-1;k>=0;k--){
-//                        if (j>)
                         if (fk[i][k].getNum()>0){
                             fk[i][j].setNum(fk[i][k].getNum());
                             fk[i][k].setNum(0);
@@ -369,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        isfull();
         for (int i = 0; i< 4 ;i++){
             if (fk[i][0].getNum()==0){
                 list.add(i);
@@ -380,11 +384,9 @@ public class MainActivity extends AppCompatActivity {
             list.clear();
         }
     }
+    //检测是否无法移动,每个元素周围无相等的数值则游戏失败
     public void isfull(){
-
-
-
-
+        //检测最3x3元素周围的情况
         for (int i=0;i<3;i++){
             for (int j=0;j<3;j++){
                 if (fk[i][j].getNum() ==0 | fk[i][j].getNum()==fk[i][j+1].getNum() | fk[i][j].getNum()==fk[i+1][j].getNum()){
@@ -392,20 +394,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        //检测第四列周围的情况
         for (int i = 0;i< 3;i++){
             if (fk[i][3].getNum() ==0 |fk[i][3].getNum()==fk[i+1][3].getNum()){
                 return;
             }
         }
+        //检测第四行周围的情况
         for (int j = 0;j< 3;j++){
             if (fk[3][j].getNum() ==0 |fk[3][j].getNum()==fk[3][j+1].getNum()){
                 return;
             }
         }
-        tv_info.setText("you are a loser！！！");
-        onPause();
+        flag = true;
+        //逻辑走到这代表游戏结束，将最高分添加到数据库中
+        if (df > fs) {
+            db.execSQL("update fenshu set fs = ? where _id = ?", new Object[]{df, 1});
+            Toast.makeText(this,"创造了新的历史哦！斯国一",Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(this,"失败了也...",Toast.LENGTH_SHORT).show();
+        }
+        tv_info.setText("Failed");
     }
-
+    //重构返回键判断规则
     @Override
     public void onBackPressed() {
         final boolean[] flag = {false};
@@ -415,8 +426,38 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(MainActivity.this, "感谢使用,再见", Toast.LENGTH_SHORT).show();
                 MainActivity.this.finish();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        AlertDialog ad = builder.create();
+        ad.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        db.close();
+        super.onDestroy();
+    }
+
+    public void click(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Restart");
+        if (flag){
+            builder.setMessage("重新开始？");
+        }else {
+            builder.setMessage("这一局还没有玩完哦");
+        }
+        builder.setPositiveButton("重玩", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent it = new Intent(MainActivity.this,MainActivity.class);
+                startActivity(it);
+                finish();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

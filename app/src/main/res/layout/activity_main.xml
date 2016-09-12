@@ -159,7 +159,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <Button
-
+            android:onClick="houtui"
+            android:text="后退"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
             android:text="重玩"
             android:onClick="click"
             android:layout_width="wrap_content"

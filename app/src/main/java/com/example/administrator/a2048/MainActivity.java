@@ -49,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout ll;
     private Fangkuai[][] fk = {{fk_11,fk_12,fk_13,fk_14},{fk_21,fk_22,fk_23,fk_24},{fk_31,fk_32,fk_33,fk_34},{fk_41,fk_42,fk_43,fk_44}};
 
+    //记住分数的数组
+    private int jz[][] = new int[4][4];
+    private int jzgf = 0;
+
     private TextView tv_df;
     private TextView tv_info;
     private SQLiteDatabase db;
@@ -147,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
     //第四个for循环，搜索边界为0的元素，并添加到数组中。
     //最后的if判断，将从数组中随机得到的数值添加到随机的元素中
     public void up(){
+        jizhu();
         for (int i = 0;i<4;i++){
             for (int j = 0; j< 4 ;j++){
                 if (fk[i][j].getNum()==0) {
@@ -171,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (fk[k][j].getNum() == fk[i][j].getNum()) {
                                 fk[i][j].setNum(fk[i][j].getNum() + fk[k][j].getNum());
+                                jzgf = df;
                                 df = df+fk[i][j].getNum();
                                 handler.sendEmptyMessage(1);
                                 fk[k][j].setNum(0);
@@ -207,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void down(){
+        jizhu();
         for (int i = 3;i>= 0;i--){
             for (int j = 3; j >= 0 ;j--) {
                 if (fk[i][j].getNum()==0){
@@ -230,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (fk[i][j].getNum() == fk[k][j].getNum()) {
                                 fk[i][j].setNum(fk[i][j].getNum() + fk[k][j].getNum());
+                                jzgf = df;
                                 df = df+fk[i][j].getNum();
                                 handler.sendEmptyMessage(1);
                                 fk[k][j].setNum(0);
@@ -266,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void left(){
+        jizhu();
         for (int j=0;j<4;j++) {
             for (int i = 0; i < 4; i++) {
                 if (fk[i][j].getNum()==0){
@@ -290,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
                         if (j<3){
                             if (fk[i][j].getNum()==fk[i][k].getNum()){
                                 fk[i][j].setNum(fk[i][j].getNum()+fk[i][k].getNum());
+                                jzgf = df;
                                 df = df+fk[i][j].getNum();
                                 handler.sendEmptyMessage(1);
                                 fk[i][k].setNum(0);
@@ -326,6 +336,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void right(){
+        jizhu();
         for (int j = 3;j>=0;j--){
             for (int i= 3;i>=0;i--){
                 if (fk[i][j].getNum()==0){
@@ -349,6 +360,7 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                                 }
                                 fk[i][j].setNum(fk[i][j].getNum()+fk[i][k].getNum());
+                                jzgf = df;
                                 df = df+fk[i][j].getNum();
                                 handler.sendEmptyMessage(1);
                                 fk[i][k].setNum(0);
@@ -467,5 +479,24 @@ public class MainActivity extends AppCompatActivity {
         });
         AlertDialog ad = builder.create();
         ad.show();
+    }
+
+    public void jizhu(){
+        for (int i=0;i<4;i++){
+            for (int j=0;j<4;j++){
+                jz[i][j] = fk[i][j].getNum();
+            }
+        }
+    }
+
+    //后退一步
+    public void houtui(View v){
+        for (int i=0;i<4;i++){
+            for (int j=0;j<4;j++){
+                fk[i][j].setNum(jz[i][j]);
+            }
+        }
+        df = jzgf;
+        tv_df.setText(jzgf+"");
     }
 }

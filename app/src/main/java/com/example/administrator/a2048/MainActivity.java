@@ -401,20 +401,20 @@ public class MainActivity extends AppCompatActivity {
         //检测最3x3元素周围的情况
         for (int i=0;i<3;i++){
             for (int j=0;j<3;j++){
-                if (fk[i][j].getNum() ==0 | fk[i][j].getNum()==fk[i][j+1].getNum() | fk[i][j].getNum()==fk[i+1][j].getNum()){
+                if (fk[i][j].getNum() ==0 || fk[i][j].getNum()==fk[i][j+1].getNum() || fk[i][j].getNum()==fk[i+1][j].getNum()){
                     return;
                 }
             }
         }
         //检测第四列周围的情况
         for (int i = 0;i< 3;i++){
-            if (fk[i][3].getNum() ==0 |fk[i][3].getNum()==fk[i+1][3].getNum()){
+            if (fk[i][3].getNum() ==0 ||fk[i][3].getNum()==fk[i+1][3].getNum()){
                 return;
             }
         }
         //检测第四行周围的情况
         for (int j = 0;j< 3;j++){
-            if (fk[3][j].getNum() ==0 |fk[3][j].getNum()==fk[3][j+1].getNum()){
+            if (fk[3][j].getNum() ==0 ||fk[3][j].getNum()==fk[3][j+1].getNum()){
                 return;
             }
         }

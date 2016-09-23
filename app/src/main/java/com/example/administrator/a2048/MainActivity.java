@@ -23,31 +23,16 @@ public class MainActivity extends AppCompatActivity {
     boolean flag = false;
     private int df = 0;
     List<Integer> list =  new ArrayList<Integer>();
-    int[] number = {2,4};
+    int[] number = {2,2,4};
     private static int x;
     private static int y;
     private static int yx;
     private static int yy;
 
     private static final String TAG = "MainActivity";
-    private Fangkuai fk_11;
-    private Fangkuai fk_12;
-    private Fangkuai fk_13;
-    private Fangkuai fk_14;
-    private Fangkuai fk_21;
-    private Fangkuai fk_22;
-    private Fangkuai fk_23;
-    private Fangkuai fk_24;
-    private Fangkuai fk_31;
-    private Fangkuai fk_32;
-    private Fangkuai fk_33;
-    private Fangkuai fk_34;
-    private Fangkuai fk_41;
-    private Fangkuai fk_42;
-    private Fangkuai fk_43;
-    private Fangkuai fk_44;
-    private LinearLayout ll;
-    private Fangkuai[][] fk = {{fk_11,fk_12,fk_13,fk_14},{fk_21,fk_22,fk_23,fk_24},{fk_31,fk_32,fk_33,fk_34},{fk_41,fk_42,fk_43,fk_44}};
+    private LinearLayout ll_0;
+    private LinearLayout[] ll = new LinearLayout[4];
+    private Fangkuai[][] fk = new Fangkuai[4][4];
 
     //记住分数的数组
     private int jz[][] = new int[4][4];
@@ -67,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,23 +62,17 @@ public class MainActivity extends AppCompatActivity {
 
         tv_df = (TextView) findViewById(R.id.tv_df);
         tv_info = (TextView) findViewById(R.id.tv_info);
+        ll_0 = (LinearLayout) findViewById(R.id.ll);
 
-        fk[0][0] = (Fangkuai) findViewById(R.id.fk_11);
-        fk[0][1] = (Fangkuai) findViewById(R.id.fk_12);
-        fk[0][2] = (Fangkuai) findViewById(R.id.fk_13);
-        fk[0][3] = (Fangkuai) findViewById(R.id.fk_14);
-        fk[1][0] = (Fangkuai) findViewById(R.id.fk_21);
-        fk[1][1] = (Fangkuai) findViewById(R.id.fk_22);
-        fk[1][2] = (Fangkuai) findViewById(R.id.fk_23);
-        fk[1][3] = (Fangkuai) findViewById(R.id.fk_24);
-        fk[2][0] = (Fangkuai) findViewById(R.id.fk_31);
-        fk[2][1] = (Fangkuai) findViewById(R.id.fk_32);
-        fk[2][2] = (Fangkuai) findViewById(R.id.fk_33);
-        fk[2][3] = (Fangkuai) findViewById(R.id.fk_34);
-        fk[3][0] = (Fangkuai) findViewById(R.id.fk_41);
-        fk[3][1] = (Fangkuai) findViewById(R.id.fk_42);
-        fk[3][2] = (Fangkuai) findViewById(R.id.fk_43);
-        fk[3][3] = (Fangkuai) findViewById(R.id.fk_44);
+        for (int i=0;i<4;i++){
+            ll[i] = new LinearLayout(this);
+            ll[i].setOrientation(LinearLayout.HORIZONTAL);
+            ll_0.addView(ll[i]);
+            for (int j=0;j<4;j++){
+                fk[i][j] = new Fangkuai(this);
+                ll[i].addView(fk[i][j]);
+            }
+        }
 
         //从数据库中查找到最高分，并将最高分显示到界面上
         TextView tv_gf = (TextView) findViewById(R.id.tv_gf);
@@ -109,12 +86,11 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0;i<2;i++) {
             int fkx = (int) ((Math.random()) * 4);
             int fky = (int) ((Math.random()) * 4);
-            fk[fkx][fky].setNum(number[(int) (Math.random()*2)]);
+            fk[fkx][fky].setNum(number[(int) (Math.random()*3)]);
         }
 
         //设置手指在屏幕内滑动的逻辑
-        ll = (LinearLayout) findViewById(R.id.ll);
-        ll.setOnTouchListener(new View.OnTouchListener() {
+        ll_0.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -169,19 +145,17 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0;i<4;i++){
             for (int j = 0; j< 4 ;j++){
                 if (fk[i][j].getNum()>0){
-                    if (i != 4) {
-                        for (int k = i+1; k < 4; k++) {
-                            if (Math.abs(k-i)>1 && fk[k][j].getNum()>0){
-                                break;
-                            }
-                            if (fk[k][j].getNum() == fk[i][j].getNum()) {
-                                fk[i][j].setNum(fk[i][j].getNum() + fk[k][j].getNum());
-                                jzgf = df;
-                                df = df+fk[i][j].getNum();
-                                handler.sendEmptyMessage(1);
-                                fk[k][j].setNum(0);
-                                break;
-                            }
+                    for (int k = i+1; k < 4; k++) {
+                        if (Math.abs(k-i)>1 && fk[k][j].getNum()>0){
+                            break;
+                        }
+                        if (fk[k][j].getNum() == fk[i][j].getNum()) {
+                            fk[i][j].setNum(fk[i][j].getNum() + fk[k][j].getNum());
+                            jzgf = df;
+                            df = df+fk[i][j].getNum();
+                            handler.sendEmptyMessage(1);
+                            fk[k][j].setNum(0);
+                            break;
                         }
                     }
                 }
